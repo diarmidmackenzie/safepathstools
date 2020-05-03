@@ -1,0 +1,29 @@
+{
+        "test_name": "Coffee Meeting",
+        "test_summary": "Meet for Coffee for 20 mins",
+        "min_intersections": 2,
+        "max_intersections": 4,
+        "iterations": 1000,
+        "movement_set_a": [{
+                        "latitude": 0,
+                        "longitude": 0,
+                        "time": 0
+                },
+                {
+                        "latitude": 0,
+                        "longitude": 0,
+                        "time": 1200
+                }
+        ],
+        "movement_set_b": [{
+                        "latitude": 0,
+                        "longitude": 0,
+                        "time": 0
+                },
+                {
+                        "latitude": 0,
+                        "longitude": 0,
+                        "time": 1200
+                }
+        ]
+}

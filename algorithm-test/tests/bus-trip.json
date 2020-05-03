@@ -1,0 +1,119 @@
+{
+        "test_name": "Bus journey",
+        "test_summary": "A & B travel on a bus for 20 mins.  Stops for 1 min every 1km / 3 minutes",
+        "min_intersections": 2,
+        "max_intersections": 4,
+        "iterations": 1000,
+        "movement_set_a": [{
+                        "latitude": 0,
+                        "longitude": 0,
+                        "time": 0
+                },
+                {
+                        "latitude": 0,
+                        "longitude": 0.001,
+                        "time": 180
+                },
+                {
+                        "latitude": 0,
+                        "longitude": 0.001,
+                        "time": 240
+                },
+                {
+                        "latitude": 0.001,
+                        "longitude": 0.001,
+                        "time": 420
+                },
+                {
+                        "latitude": 0.001,
+                        "longitude": 0.001,
+                        "time": 480
+                },
+                {
+                        "latitude": 0.001,
+                        "longitude": 0.002,
+                        "time": 660
+                },
+                {
+                        "latitude": 0.001,
+                        "longitude": 0.002,
+                        "time": 720
+                },
+                {
+                        "latitude": 0.002,
+                        "longitude": 0.002,
+                        "time": 900
+                },
+                {
+                        "latitude": 0.002,
+                        "longitude": 0.002,
+                        "time": 960
+                },
+                {
+                        "latitude": 0.002,
+                        "longitude": 0.003,
+                        "time": 1140
+                },
+                {
+                        "latitude": 0.002,
+                        "longitude": 0.003,
+                        "time": 1200
+                }
+        ],
+        "movement_set_b": [{
+                        "latitude": 0,
+                        "longitude": 0,
+                        "time": 0
+                },
+                {
+                        "latitude": 0,
+                        "longitude": 0.001,
+                        "time": 180
+                },
+                {
+                        "latitude": 0,
+                        "longitude": 0.001,
+                        "time": 240
+                },
+                {
+                        "latitude": 0.001,
+                        "longitude": 0.001,
+                        "time": 420
+                },
+                {
+                        "latitude": 0.001,
+                        "longitude": 0.001,
+                        "time": 480
+                },
+                {
+                        "latitude": 0.001,
+                        "longitude": 0.002,
+                        "time": 660
+                },
+                {
+                        "latitude": 0.001,
+                        "longitude": 0.002,
+                        "time": 720
+                },
+                {
+                        "latitude": 0.002,
+                        "longitude": 0.002,
+                        "time": 900
+                },
+                {
+                        "latitude": 0.002,
+                        "longitude": 0.002,
+                        "time": 960
+                },
+                {
+                        "latitude": 0.002,
+                        "longitude": 0.003,
+                        "time": 1140
+                },
+                {
+                        "latitude": 0.002,
+                        "longitude": 0.003,
+                        "time": 1200
+                }
+        ]
+}

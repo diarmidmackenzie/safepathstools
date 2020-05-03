@@ -1,0 +1,29 @@
+{
+        "test_name": "Two people 150m apart (24h)",
+        "test_summary": "100m distance for 24 hours, no movement",
+        "min_intersections": 0,
+        "max_intersections": 0,
+        "iterations": 10,
+        "movement_set_a": [{
+                        "latitude": 0,
+                        "longitude": 0,
+                        "time": 0
+                },
+                {
+                        "latitude": 0,
+                        "longitude": 0,
+                        "time": 86400
+                }
+        ],
+        "movement_set_b": [{
+                        "latitude": 0.001,
+                        "longitude": 0.001,
+                        "time": 0
+                },
+                {
+                        "latitude": 0.001,
+                        "longitude": 0.001,
+                        "time": 86400
+                }
+        ]
+}
