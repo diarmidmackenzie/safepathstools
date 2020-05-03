@@ -130,14 +130,20 @@ def distance_between_two_points(lat_a,
      
      # Length of a degree.  These are for UK - we should be smmarter
      # Units are metres
-     lod_lat = 111292.91
-     lod_long = 66584.44
 
-     long_diff = abs((long_a - long_b) * lod_long)
-     lat_diff = abs((lat_a - lat_b) * lod_lat)
-     distance = math.sqrt(long_diff * long_diff + lat_diff * lat_diff)
-     
-     return(distance)
+     p1 = (lat_a * math.pi) / 180;
+     p2 = (lat_b * math.pi) / 180;
+     deltaLambda = ((long_b - long_a) * math.pi) / 180;
+     R = 6371e3; ### gives d in metres
+     d = math.acos(math.sin(p1) * math.sin(p2) +
+                   math.cos(p1) * math.cos(p2) * math.cos(deltaLambda)) * R;
+     #print(lat_a)
+     #print(long_a)
+     #print(lat_b)
+     #print(long_b)
+     #print(d)
+
+     return(d)
 
 def execute_test(test_name,
                  movement_set_a,
