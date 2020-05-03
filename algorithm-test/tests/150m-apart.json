@@ -3,7 +3,7 @@
         "test_summary": "100m distance for 24 hours, no movement",
         "min_intersections": 0,
         "max_intersections": 0,
-        "iterations": 10,
+        "iterations": 100,
         "movement_set_a": [{
                         "latitude": 0,
                         "longitude": 0,
