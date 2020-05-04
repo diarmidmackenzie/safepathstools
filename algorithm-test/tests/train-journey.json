@@ -1,0 +1,99 @@
+{
+        "test_name": "Train journey",
+        "test_summary": "A & B travel on a bus for 2 hours.  Stops for 30 seconds every 30 mins / 100 km",
+        "min_intersections": 2,
+        "max_intersections": 4,
+        "iterations": 1000,
+        "movement_set_a": [{
+                        "latitude": 0,
+                        "longitude": 0,
+                        "time": 0
+                },
+                {
+                        "latitude": 0,
+                        "longitude": 1,
+                        "time": 1800
+                },
+                {
+                        "latitude": 0,
+                        "longitude": 1,
+                        "time": 1830
+                },
+                {
+                        "latitude": 1,
+                        "longitude": 1,
+                        "time": 3630
+                },
+                {
+                        "latitude": 1,
+                        "longitude": 1,
+                        "time": 3660
+                },
+                {
+                        "latitude": 1,
+                        "longitude": 2,
+                        "time": 5460
+                },
+                {
+                        "latitude": 1,
+                        "longitude": 2,
+                        "time": 5490
+                },
+                {
+                        "latitude": 2,
+                        "longitude": 2,
+                        "time": 7290
+                },
+                {
+                        "latitude": 2,
+                        "longitude": 2,
+                        "time": 7320
+                }
+        ],
+        "movement_set_b": [{
+                        "latitude": 0,
+                        "longitude": 0,
+                        "time": 0
+                },
+                {
+                        "latitude": 0,
+                        "longitude": 1,
+                        "time": 1800
+                },
+                {
+                        "latitude": 0,
+                        "longitude": 1,
+                        "time": 1830
+                },
+                {
+                        "latitude": 1,
+                        "longitude": 1,
+                        "time": 3630
+                },
+                {
+                        "latitude": 1,
+                        "longitude": 1,
+                        "time": 3660
+                },
+                {
+                        "latitude": 1,
+                        "longitude": 2,
+                        "time": 5460
+                },
+                {
+                        "latitude": 1,
+                        "longitude": 2,
+                        "time": 5490
+                },
+                {
+                        "latitude": 2,
+                        "longitude": 2,
+                        "time": 7290
+                },
+                {
+                        "latitude": 2,
+                        "longitude": 2,
+                        "time": 7320
+                }
+        ]
+}
