@@ -128,22 +128,31 @@ def distance_between_two_points(lat_a,
                                 lat_b,
                                 long_b):
      
-     # Length of a degree.  These are for UK - we should be smmarter
-     # Units are metres
+    deltaLong = long_b - long_a;
 
-     p1 = (lat_a * math.pi) / 180;
-     p2 = (lat_b * math.pi) / 180;
-     deltaLambda = ((long_b - long_a) * math.pi) / 180;
-     R = 6371e3; ### gives d in metres
-     d = math.acos(math.sin(p1) * math.sin(p2) +
-                   math.cos(p1) * math.cos(p2) * math.cos(deltaLambda)) * R;
-     #print(lat_a)
-     #print(long_a)
-     #print(lat_b)
-     #print(long_b)
-     #print(d)
+    p1 = (lat_a * math.pi) / 180;
+    p2 = (lat_b * math.pi) / 180;
+    deltaLambda = ((long_b - long_a) * math.pi) / 180;
+    R = 6371e3; ### gives d in metres
+    
+    cos_d = (math.cos(p1) * math.cos(p2)) + (math.sin(p1) * math.sin(p2) * math.cos(deltaLambda))
+    # Weird bug (Python-only?) sometimes this is > 1.
+    # Specifically with 
+    # p1 = 0.0017454475853176147
+    # p2 = 0.0017454475853176147
+    # deltaLambda = 1
+    if cos_d > 1:
+        print(p1, p2, deltaLambda, cos_d)
+        cos_d = 1.0
 
-     return(d)
+    d = math.acos(cos_d) * R;
+    #print(lat_a)
+    #print(long_a)
+    #print(lat_b)
+    #print(long_b)
+    #print(d)
+
+    return(d)
 
 def execute_test(test_name,
                  movement_set_a,
