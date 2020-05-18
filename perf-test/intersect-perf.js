@@ -8,6 +8,7 @@
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
 var math = require('math');
+var heading = require('geolocation-utils')
 
 //Create an event handler:
 var myEventHandler = function () {
@@ -98,6 +99,18 @@ var myEventHandler = function () {
   }		  
   end_time = Date.now()
   console.log(end_time - start_time);
+
+  console.log("geolocation-utils (10% of load)");
+ 
+  start_time = Date.now()
+  for (j = 0; j < 1000 ; j++) {
+    for (i = 0; i < 10000 ; i++) {
+      areLocationsNearby_geolocation(lat1[i], long1[i], lat2[i], long2[i]);
+    }
+  }     
+  end_time = Date.now()
+  console.log(end_time - start_time);
+
 }
 
 //Assign the event handler to an event:
@@ -392,6 +405,20 @@ function areLocationsNearby_original(lat1, lon1, lat2, lon2) {
         Math.cos(p1) * Math.cos(p2) * Math.cos(deltaLambda),
     ) * R;
 
+  // closer than the "nearby" distance?
+  if (d < nearbyDistance) return true;
+
+  // nope
+  return false;
+}
+
+
+function areLocationsNearby_geolocation(lat1, lon1, lat2, lon2) {
+  const nearbyDistance = 20; // in meters, anything closer is "nearby"
+  const location1 = {lat: lat1, lon: lon1}
+  const location2 = {lat: lat2, lon: lon2 }
+  let d = heading.headingDistanceTo(location1, location2).distance
+  //console.log(location1, location2, d)
   // closer than the "nearby" distance?
   if (d < nearbyDistance) return true;
 
