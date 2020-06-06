@@ -1,8 +1,10 @@
 {
         "test_name": "Bus journey",
-        "test_summary": "A & B travel on a bus for 20 mins.  Stops for 1 min every 1km / 3 minutes",
+        "test_summary": "A & B travel on a bus for 20 mins.  Stops for 1 min every 1km / 3 minutes.  Short duration => no notifications",
         "min_intersections": 2,
         "max_intersections": 4,
+        "min_notifications": 0,
+        "max_notifications": 1,
         "iterations": 1000,
         "movement_set_a": [{
                         "latitude": 0,

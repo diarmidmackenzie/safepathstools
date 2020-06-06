@@ -1,29 +1,32 @@
 {
         "test_name": "Coffee Meeting",
-        "test_summary": "Meet for Coffee for 20 mins",
+        "test_summary": "Meet for Coffee for 60 mins",
         "min_intersections": 2,
-        "max_intersections": 4,
+        "max_intersections": 12,
+        "min_notifications": 1,
+        "max_notifications": 12,
+        
         "iterations": 1000,
         "movement_set_a": [{
-                        "latitude": 0,
-                        "longitude": 0,
+                        "latitude": 0.1,
+                        "longitude": 0.1,
                         "time": 0
                 },
                 {
-                        "latitude": 0,
-                        "longitude": 0,
-                        "time": 1200
+                        "latitude": 0.1,
+                        "longitude": 0.1,
+                        "time": 3600
                 }
         ],
         "movement_set_b": [{
-                        "latitude": 0,
-                        "longitude": 0,
+                        "latitude": 0.1,
+                        "longitude": 0.1,
                         "time": 0
                 },
                 {
-                        "latitude": 0,
-                        "longitude": 0,
-                        "time": 1200
+                        "latitude": 0.1,
+                        "longitude": 0.1,
+                        "time": 3600
                 }
         ]
 }

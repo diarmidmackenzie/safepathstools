@@ -1,8 +1,10 @@
 {
         "test_name": "Train journey",
-        "test_summary": "A & B travel on a bus for 2 hours.  Stops for 30 seconds every 30 mins / 100 km",
+        "test_summary": "A & B travel on a train for 2 hours.  Stops for 30 seconds every 30 mins / 100 km",
         "min_intersections": 2,
-        "max_intersections": 4,
+        "max_intersections": 100,
+        "min_notifications": 1,
+        "max_notifications": 12,
         "iterations": 1000,
         "movement_set_a": [{
                         "latitude": 0,
