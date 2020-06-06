@@ -8,3 +8,5 @@ Jinja2==2.11.1
 MarkupSafe==1.1.1
 urllib3==1.25.8
 Werkzeug==1.0.1
+python-geohash==0.8.5
+scrypt==0.8.15

@@ -35,3 +35,8 @@ perf-test/node_modules/point-in-polygon/package.json
 perf-test/node_modules/point-in-polygon/readme.markdown
 perf-test/node_modules/point-in-polygon/test/box.js
 perf-test/package-lock.json
+*.pyc
+flask_server/project/output.json
+flask_server/project/text.json
+flask_server/project/text2.json
+flask_server/project/text3.json
