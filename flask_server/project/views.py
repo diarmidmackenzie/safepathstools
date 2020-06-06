@@ -28,6 +28,10 @@ def infections():
     hash_cost = request.args.get('hash')
     if hash_cost == None: 
         hash_cost = "0"
+ 
+    pages = request.args.get('pages')
+    if pages == None: 
+        pages = "0"
     
     days = request.args.get('days')
     if days == None:
@@ -57,7 +61,9 @@ def infections():
         cases_int = int(cases)
         days_int = int(days)
         hash_int = int(hash_cost)
+        pages_int = int(pages)
         
+
         assert(cases_int >= 1)
         assert(days_int >= 1)
 
@@ -69,25 +75,39 @@ def infections():
             data_valid = False
             error_text = "We don't support more than 28 days of data"
 
-        if hash_int > 27:
+        if hash_int > 17:
             data_valid = False
             error_text = "We don't support a Hash Cost over 17 (even with lower hash costs, only 10 seconds of hashes are generated"
 
+        if pages_int > 28:
+            data_valid = False
+            error_text = "We don't support more than 28 pages."
     except:
     	data_valid = False
     	print("validation error: cases:" + cases + " days:" + days)
     	error_text = "Days & Cases must be integers > 0,  e.g. cases=3&days=10"
 
+    
 
     if (data_valid):
-	    text = write_data(cases_int,
-	    	              days_int,
-	    	              latitude_float,
-	    	              longitude_float,
-	    	              "Test Authority",
-	    	              False,
-	    	              radius_float,
-                      hash_int)
+      if (pages_int == 0):
+  	    text = write_data(cases_int,
+  	    	                days_int,
+    	    	              latitude_float,
+    	    	              longitude_float,
+    	    	              "Test Authority",
+    	    	              False,
+    	    	              radius_float,
+                          hash_int)
+      else:
+        text = write_cursor_file(cases_int,
+                                 days_int,
+                                 latitude_float,
+                                 longitude_float,
+                                 "Test Authority",
+                                 radius_float,
+                                 hash_int,
+                                 pages_int)
     else:
 	 	# Invalid data - show usage statement
         text = "<center><b><p>PRIVACY WARNING</p><p>IF YOU USE A URL CENTRED ON YOUR CURRENT LOCATION</p>"
@@ -102,6 +122,7 @@ def infections():
         text += "<li>Days: 1</li>"
         text += "<li>Radius: 0.0001</li>"
         text += "<li>Hash: 0</li></ul>"
+        text += "<li>Pages: 0</li></ul>"
         text += "<p>Radius represents the number of degrees away from the specified latitude and longitude that data points may be generated.</p>"
         text += "<p>Use radius=0 if you want every data point to be recorded at the exact latitude & longitude specified.</p>"
         text += "<p>Note: it is not a true <i>radius</i>.  In fact the area in which data points are placed is square.</p>"
@@ -110,9 +131,14 @@ def infections():
         text += "<p>For an app that needs hashes the hash cost must match the hash cost used in the app.</p>"
         text += "<p>Note that the true cost of hashing is 2^N where N is the hash cost.  For N = 16 each hash takes about a second to compute</p>"
         text += "<p>To save CPU on the server, we only output at most 10 seconds worth of hashes, not matter what the overall data size.</p>"
-        
-        
-        
+        text += "<p>Pages > 0 will result in the initial page being served as a cursor file, with URL references to sub-pages.</p>"
+        text += "<p>Every pages is populated as per the initial parameters, so pages=10 will generate 10x as much data in total.</p>"
+        text += "<p></p>"
+        text += "<p><b>Some Examples</b></p>"
+        text += "<table><tr><td>(original version of app) Single data file, plain text</td><td>?longitude=1&latitude=2</td></tr>"
+        text += "<tr><td>Single data file with hashes at cost = 12</td><td>?longitude=1&latitude=2&hash=12</td></tr>"
+        text += "<tr><td>(standard for MVP1) Multiple datas file with hashes at cost = 12</td><td>?longitude=1&latitude=2&hash=12&pages=3</td></tr></table>"
+
     return (text)
 
 
@@ -184,16 +210,70 @@ def write_data(cases,
                                         'latitude': round(latitude + lat_delta, gps_dps)})
 
                   # Note, data is generated backwards, so that the data points for which we produce hashes will be the most recent
-                  # SInce we expect that will be most useful.
+                  # Since we expect that will be most useful.
                   next_timestamp -= 300 * time_multiplier
-     json_dictionary = {'authority_name':authority,
-                        'publish_date_utc': int(time_now),
-                        'info_website': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
-                        'concern_points':data_rows}
+
+     json_dictionary = {'version': '1.0',
+                       'authority_name':authority,
+                       'publish_date_utc': int(time_now),
+                       'info_website_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
+                       'api_endpoint_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
+                       'privacy_policy_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
+                       'reference_website_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
+                       'notification_threshold_percent': 66,
+                       'notification_threshold_time': 30,
+                       'authority_name':authority}
                         
      if hash_cost > 0:
          json_dictionary['concern_point_hashes'] = hash_data_rows
+     else:
+         json_dictionary['concern_points'] = data_rows
 
      text = json.dumps(json_dictionary, indent=0)
 
      return text
+
+def write_cursor_file(cases,
+                      days,
+                      latitude,
+                      longitude,
+                      authority,
+                      radius,
+                      hash_cost,
+                      pages):
+
+    pages_data = []
+    time_now = int(time.time()) * 1000
+    base_time = time_now - (pages * 1000)
+
+    url_string = "https://diarmidmackenzie.pythonanywhere.com/infection-data?"
+    url_string += "latitude=" + str(latitude)
+    url_string += "&longitude=" + str(longitude)
+    url_string += "&authority=" + authority
+    url_string += "&radius=" + str(radius)
+    url_string += "&hash=" + str(hash_cost)
+    url_string += "&cases=" + str(cases)
+    url_string += "&days=" + str(days)
+
+    for ii in range(pages):      
+      start_time = base_time + (ii * 1000)
+      end_time = start_time + 999
+      pages_data.append({'id': str(start_time) + "_" + str(end_time),
+                         'startTimestamp': start_time,
+                         'endTimestamp': end_time,
+                         'filename': url_string})
+                        
+    json_dictionary = {'version': '1.0',
+                       'authority_name':authority,
+                       'publish_date_utc': int(time_now),
+                       'info_website_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
+                       'api_endpoint_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
+                       'privacy_policy_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
+                       'reference_website_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
+                       'notification_threshold_percent': 66,
+                       'notification_threshold_time': 30,
+                       'pages': pages_data}
+                       
+    text = json.dumps(json_dictionary, indent=0)
+
+    return text
