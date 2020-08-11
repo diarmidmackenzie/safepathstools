@@ -10,7 +10,7 @@ def write_location_data(num_points,
                         walk_step):
                
 
-    gps_dps = 8
+    gps_dps = 12
     time_multiplier = 1000
 
     data_rows = []
