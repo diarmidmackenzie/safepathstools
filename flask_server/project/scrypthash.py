@@ -9,7 +9,6 @@ def scrypt_hash(password,
 	            dklen):
 
     # We use the scrypt executable to generate the key in Base-91 format.
-    
     os_command = ["scrypt-kdf", 
                   password,
                   salt,
@@ -18,9 +17,9 @@ def scrypt_hash(password,
                   str(p),
                   str(dklen * 8)]
        
-    returned_string = str(subprocess.check_output(os_command))
+    returned_string = subprocess.check_output(os_command).decode()
 
-    # The returned string is the following elements, separated by "-"
+    # The returned string consists of the following elements, separated by "-"
     # key salt logN r p
     # Key and salt are in base91 format
     returned_hash = returned_string.split("-")[0]
