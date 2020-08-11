@@ -17,6 +17,8 @@ text = views.write_data(1,
 			            "Test Health Authority",
 			            False,
 			            2,
-			            12)
+			            12,
+			            66,
+			            30)
 
 print(text)

@@ -1,15 +1,92 @@
 from . import app
-from flask import request
+from flask import Flask, render_template, request
 import json
 import time
 import random
 import geohash
 import hashlib
 import scrypthash
+import urllib
+import jsonutils
+import generatelocations
 
+@app.route('/upload')
+def upload_json():
+   return render_template('upload.html')
+  
+@app.route('/uploader', methods = ['GET', 'POST'])
+def json_uploader():
+   if request.method == 'POST':
+      f = request.files['file']
+      text = jsonutils.analyze_json_file(f)
+      return text
+    
 @app.route('/')
 def index():
-    return "Hello World!"
+    return "Hello World! Yes!"
+
+
+@app.route('/location-data')
+def locations():
+    # Start assuming data valid& set defaults.
+    data_valid = True
+
+    longitude = request.args.get('longitude')
+    if longitude == None:
+      longitude = "error"
+
+    latitude = request.args.get('latitude')
+    if latitude == None:
+        latitude = "error"
+
+    points = request.args.get('points')
+    if points == None: 
+        points = "10"
+
+    step = request.args.get('step')
+    if step == None: 
+        step = "0"
+
+    try:
+        latitude_float = float(latitude)
+        longitude_float = float(longitude)
+    except:
+        data_valid = False
+        error_text = "Latitude and Longitude must be decimal numbers, e.g. longitude=-73.9878584&latitude=40.7484445"
+
+    try:
+        walk_step_float = float(step)
+    except:
+        data_valid = False
+        error_text = "Step should be a decimal number, indicating the random step size on each data point."
+
+    try:
+        points_int = int(points)
+        assert(points_int >= 1)
+        assert(points_int <= 8000)
+    except:
+        data_valid = False
+        error_text = "points must be an integer from 1 to 8000"
+
+    if (data_valid):
+        text = generatelocations.write_location_data(points_int,
+                                                     latitude_float,
+                                                     longitude_float,
+                                                     walk_step_float)
+    else:
+      # Invalid data - show usage statement
+        text = "<center><b><p>PRIVACY WARNING</p><p>IF YOU USE A URL CENTRED ON YOUR CURRENT LOCATION</p>"
+        text += "<p>THINK CAREFULLY BEFORE POSTING THAT URL IN PUBLIC (E.G. ON A GITHUB ISSUE)</p>"
+        text += "<p>IT MAY BE UNWISE TO PUBLISH YOUR LOCATION ON A PUBLIC FORUM</p></b></center>"
+        text += "<p><b>" + error_text + "</b></p>"
+        text += "<p>This tool generates a set of N location points, on a random walk from a specified latitude and longitude.<p>"
+        text += "<p>Points are generated every 5 mins, starting in the past, and finishing at this moment.<p>"
+        text += "<p>URL should be of the form: http://[base URL]/location-data?longitude=-73.9878584&latitude=40.7484445&points=4000</p>"
+        text += "<p>step is an optional parameter that leads to a random walk.  If not specified all points are in a single location</p>"
+        text += "<p>step is a number of degrees that the position may move with each successive point.  Try 1e-5 for example</p>"
+
+    return (text)
+
 
 @app.route('/infection-data')
 def infections():
@@ -40,7 +117,15 @@ def infections():
     radius = request.args.get('radius')
     if radius == None:	
         radius = "0.00001"
+
+    notification_threshold_percent = request.args.get('notification_threshold_percent')
+    if notification_threshold_percent == None:  
+        notification_threshold_percent = "66"
     
+    notification_threshold_timeframe = request.args.get('notification_threshold_timeframe')
+    if notification_threshold_timeframe == None:  
+        notification_threshold_timeframe = "30"
+
     # Start assuming data valid.& set dedaults.
     data_valid = True
     
@@ -62,7 +147,8 @@ def infections():
         days_int = int(days)
         hash_int = int(hash_cost)
         pages_int = int(pages)
-        
+        notification_threshold_percent_int = int(notification_threshold_percent)
+        notification_threshold_timeframe_int = int(notification_threshold_timeframe)
 
         assert(cases_int >= 1)
         assert(days_int >= 1)
@@ -85,9 +171,7 @@ def infections():
     except:
     	data_valid = False
     	print("validation error: cases:" + cases + " days:" + days)
-    	error_text = "Days & Cases must be integers > 0,  e.g. cases=3&days=10"
-
-    
+    	error_text = "Days & Cases must be integers > 0,  e.g. cases=3&days=10.  Hash, Pages & Notification params must be integers."
 
     if (data_valid):
       if (pages_int == 0):
@@ -95,19 +179,23 @@ def infections():
   	    	                days_int,
     	    	              latitude_float,
     	    	              longitude_float,
-    	    	              "Test Authority",
+    	    	              "TestAuthority",
     	    	              False,
     	    	              radius_float,
-                          hash_int)
+                          hash_int,
+                          notification_threshold_percent_int,
+                          notification_threshold_timeframe_int)
       else:
         text = write_cursor_file(cases_int,
                                  days_int,
                                  latitude_float,
                                  longitude_float,
-                                 "Test Authority",
+                                 "TestAuthority",
                                  radius_float,
                                  hash_int,
-                                 pages_int)
+                                 pages_int,
+                                 notification_threshold_percent_int,
+                                 notification_threshold_timeframe_int)
     else:
 	 	# Invalid data - show usage statement
         text = "<center><b><p>PRIVACY WARNING</p><p>IF YOU USE A URL CENTRED ON YOUR CURRENT LOCATION</p>"
@@ -117,12 +205,16 @@ def infections():
         text += "<p>This tool generates a sample data set for a Health Authority, within a certain distance of a specified location<p>"
         text += "<p>URL should be of the form: http://[base URL]/infection-data?longitude=-73.9878584&latitude=40.7484445&cases=2&days=10&radius=0.0001</p>"
         text += "<p>All parameters except longitude & latitude are optional</p>"
+        text += "<p>Other possible parameters: hash, pages, notification_threshold_percent, notification_threshold_timeframe</p>"
         text += "Default values are:"
         text += "<li>Cases: 1</li>"
         text += "<li>Days: 1</li>"
         text += "<li>Radius: 0.0001</li>"
         text += "<li>Hash: 0</li></ul>"
         text += "<li>Pages: 0</li></ul>"
+        text += "<li>:Notification Threshold Percent: 66</li></ul>"
+        text += "<li>:Notification Threshold Time: 30</li></ul>"
+        
         text += "<p>Radius represents the number of degrees away from the specified latitude and longitude that data points may be generated.</p>"
         text += "<p>Use radius=0 if you want every data point to be recorded at the exact latitude & longitude specified.</p>"
         text += "<p>Note: it is not a true <i>radius</i>.  In fact the area in which data points are placed is square.</p>"
@@ -142,6 +234,109 @@ def infections():
     return (text)
 
 
+@app.route('/yaml')
+def hds():
+
+    # Start assuming data valid.& set defaults.
+    data_valid = True
+
+    longitude = request.args.get('longitude')
+    if longitude == None:
+      longitude = "error"
+
+    latitude = request.args.get('latitude')
+    if latitude == None:
+        latitude = "error"
+
+    hds = request.args.get('hds')
+    if hds == None:
+        hds = "error"
+
+    try:
+      latitude_float = float(latitude)
+      longitude_float = float(longitude)
+    except:
+      data_valid = False
+      error_text = "Latitude and Longitude must be decimal numbers, e.g. longitude=-73.9878584&latitude=40.7484445"
+
+    try:
+        hds_int = int(hds)
+        assert(hds_int >= 1)
+    except:
+        data_valid = False
+        error_text = "Health Departments (hds) must be an integer > 0\n"
+
+    if (data_valid):
+        text = "authorities:\n"
+        for ii in range(hds_int):
+            # Probably want some more sophistictaed pattern here...
+            # This gives n^3 data, i.e. 1x, 8x, 27x, 64x etc.
+            pages = ii + 1
+            cases = ii + 1
+            days = ii + 1
+            org_id = "Org" + str(ii)
+            text += write_hd(org_id, pages, cases, days, latitude_float, longitude_float, 0, 66, 1)
+    else:
+        text = "<center><b><p>PRIVACY WARNING</p><p>IF YOU USE A URL CENTRED ON YOUR CURRENT LOCATION</p>"
+        text += "<p>THINK CAREFULLY BEFORE POSTING THAT URL IN PUBLIC (E.G. ON A GITHUB ISSUE)</p>"
+        text += "<p>IT MAY BE UNWISE TO PUBLISH YOUR LOCATION ON A PUBLIC FORUM</p></b></center>"
+        text += "<p><b>" + error_text + "</b></p>"
+        text += "<p>This tool generates a set of Health Departments in your location<p>"
+        text += "<p>URL should be of the form: http://[base URL]/yaml?longitude=-73.9878584&latitude=40.7484445&hds=2</p>"
+        text += "<p>The hds parameter defines the number of Health Departments to be created.</p>"
+        text += "<p>The 1st HD will be created to server 1 page, with 1 day of data for 1 case.</p>"
+        text += "<p>The 2nd HD will be created to server 2 pages, with 2 day of data for 2 cases.</p>"
+        text += "<p>And so on...</p>"
+        text += "<p>If you create 10 HDs, the 10th HD will server 10 pages of data, each with 10 cases for 10 days.</p>"
+        text += "<p>With 288 data points per day, that's 288 x 10 x 10 x 10 = 288k data points.</p>"
+        text += "<p>So this can be useful for scale testing!</p>"
+        text += "<p>If you want to test a very large number of HDs, e.g. 100 or more, that's fine...</p>"
+        text += "<p>... but if you subscribe to the HA, the App will try to download 288M data points...</p>"
+        text += "<p>... so maybe don't actually subscribe to those, unless you specifically want to test extreme load.</p>"
+        
+    return text
+
+
+def write_hd(org_id,
+             pages, 
+             cases,
+             days,
+             latitude,
+             longitude,
+             radius,
+             notification_threshold_percent,
+             notification_threshold_timeframe):
+
+    cursor_url = "diarmidmackenzie.pythonanywhere.com/infection-data?"
+    cursor_url += "latitude=" + str(latitude)
+    cursor_url += "&longitude=" + str(longitude)
+    cursor_url += "&hash=12" 
+    cursor_url += "&pages=" + str(pages)
+    cursor_url += "&cases=" + str(cases)
+    cursor_url += "&days=" + str(days)
+    cursor_url += "&radius=" + str(radius)
+    cursor_url += "&notification_threshold_percent=" + str(notification_threshold_percent)
+    cursor_url += "&notification_threshold_timeframe=" + str(notification_threshold_timeframe)
+
+    authority = "Custom Test HD"
+    authority += " P" + str(pages)
+    authority += " C" + str(cases)
+    authority += " D" + str(days)
+
+    text = "- name: " + authority + "\n"
+    text += "  bounds:\n"
+    text += "    ne:\n"
+    text += "      latitude: " + str(latitude + 1) + "\n"
+    text += "      longitude: " + str(longitude + 1)  + "\n"
+    text += "    sw:\n"
+    text += "      latitude: " + str(latitude - 1)  + "\n"
+    text += "      longitude: " + str(longitude - 1)  + "\n"
+    text += "  org_id: " + org_id + "\n"
+    text += "  public_api: https://doesnotexist\n"
+    text += "  cursor_url: \"https://" + cursor_url + "\"\n"
+
+    return text
+
 def write_data(cases,
                days,
                latitude,
@@ -149,7 +344,9 @@ def write_data(cases,
                authority,
                compress,
                radius,
-               hash_cost):
+               hash_cost,
+               notification_threshold_percent,
+               notification_threshold_timeframe):
 
      if (compress):
          gps_dps = 5
@@ -172,14 +369,17 @@ def write_data(cases,
      
                   hash_timer = time.time()
      
-                  # We only generate hashes for at most 10 seconds' CPU time.
+                  # We only generate hashes for at most 20 seconds' CPU time.
                   # We work backwards, so the most recent data points will be hashed.
-                  if (hash_cost > 0) and (hash_timer < time_now + 10):
+                  if (hash_cost > 0) and (hash_timer < time_now + 20):
                       geohash_string = geohash.encode(latitude + lat_delta,longitude + long_delta)[0:8]
-                      rounded_time = round(next_timestamp/300) * 300
+                      rounded_time = round(next_timestamp/300000) * 300000
+
+                      encode_string = geohash_string + str(rounded_time)
+                      print("Encoding string: %s" % encode_string)
 
                       try:
-                          hash_output = hashlib.scrypt(bytes(geohash_string + str(rounded_time), 'utf-8'),
+                          hash_output = hashlib.scrypt(bytes(encode_string, 'utf-8'),
                                                        salt=bytes("salt",'utf-8'),
                                                        n=(2 ** hash_cost),
                                                        r=8,
@@ -191,13 +391,14 @@ def write_data(cases,
                           # Instead we use a custom python module that calls through to a scrypt linux binary
                           # This one: https://github.com/jkalbhenn/scrypt
                           # This version just takes strings, not byte arrays, and has no maxmem parameter
-                          hash_output = scrypthash.scrypt_hash(geohash_string + str(rounded_time),
+                          hash_output = scrypthash.scrypt_hash(encode_string,
                                                                "salt",
                                                                n=(2 ** hash_cost),
                                                                r=8,
                                                                p=1,
                                                                dklen=8)
 
+                      print("Resulting hash: %s" % hash_output.hex())
                       hash_data_rows.append(hash_output.hex())
 
                   if (compress):
@@ -217,11 +418,11 @@ def write_data(cases,
                        'authority_name':authority,
                        'publish_date_utc': int(time_now),
                        'info_website_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
-                       'api_endpoint_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
+                       'api_endpoint_url': "https://diarmidmackenzie.pythonanywhere.com",
                        'privacy_policy_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
                        'reference_website_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
-                       'notification_threshold_percent': 66,
-                       'notification_threshold_time': 30,
+                       'notification_threshold_percent': notification_threshold_percent,
+                       'notification_threshold_timeframe': notification_threshold_timeframe,
                        'authority_name':authority}
                         
      if hash_cost > 0:
@@ -240,7 +441,9 @@ def write_cursor_file(cases,
                       authority,
                       radius,
                       hash_cost,
-                      pages):
+                      pages,
+                      notification_threshold_percent,
+                      notification_threshold_timeframe):
 
     pages_data = []
     time_now = int(time.time()) * 1000
@@ -254,6 +457,8 @@ def write_cursor_file(cases,
     url_string += "&hash=" + str(hash_cost)
     url_string += "&cases=" + str(cases)
     url_string += "&days=" + str(days)
+    url_string += "&notification_threshold_percent=" + str(notification_threshold_percent)
+    url_string += "&notification_threshold_timeframe=" + str(notification_threshold_timeframe)
 
     for ii in range(pages):      
       start_time = base_time + (ii * 1000)
@@ -267,13 +472,14 @@ def write_cursor_file(cases,
                        'authority_name':authority,
                        'publish_date_utc': int(time_now),
                        'info_website_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
-                       'api_endpoint_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
+                       'api_endpoint_url': "https://diarmidmackenzie.pythonanywhere.com",
                        'privacy_policy_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
                        'reference_website_url': "https://raw.githack.com/tripleblindmarket/safe-places/develop/examples/portal.html",
-                       'notification_threshold_percent': 66,
-                       'notification_threshold_time': 30,
+                       'notification_threshold_percent': notification_threshold_percent,
+                       'notification_threshold_timeframe': notification_threshold_timeframe,
                        'pages': pages_data}
                        
     text = json.dumps(json_dictionary, indent=0)
 
     return text
+

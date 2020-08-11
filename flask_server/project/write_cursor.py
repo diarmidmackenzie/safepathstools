@@ -17,6 +17,8 @@ text = views.write_cursor_file(1,
 					           "Test Health Authority",
 					           2,
 					           12,
-					           10)
+					           10,
+					           66,
+					           30)
 
 print(text)
