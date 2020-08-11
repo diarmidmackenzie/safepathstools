@@ -44,8 +44,8 @@ def locations():
         points = "10"
 
     step = request.args.get('step')
-    if step == None: 
-        step = "0"
+    if step == None:
+        step = "1e-10"
 
     try:
         latitude_float = float(latitude)
@@ -82,8 +82,11 @@ def locations():
         text += "<p>This tool generates a set of N location points, on a random walk from a specified latitude and longitude.<p>"
         text += "<p>Points are generated every 5 mins, starting in the past, and finishing at this moment.<p>"
         text += "<p>URL should be of the form: http://[base URL]/location-data?longitude=-73.9878584&latitude=40.7484445&points=4000</p>"
-        text += "<p>step is an optional parameter that leads to a random walk.  If not specified all points are in a single location</p>"
-        text += "<p>step is a number of degrees that the position may move with each successive point.  Try 1e-5 for example</p>"
+        text += "<p>step is an optional parameter that leads to a random walk.  If not specified all points are very close together, but not identical (step=1e-10)</p>"
+        text += "<p>step is a number of degrees that the position may move with each successive point.  Try 1e-5 for example for a bit more movement</p>"
+        text += "<p>if you want no movement at all, explicitly specify step=0</p>"
+        text += "<p>Note that lat/long are only output to 12dp, if you use smaller steps than 1e-10, you'll end up with many exactly matching points</p>"
+
 
     return (text)
 
