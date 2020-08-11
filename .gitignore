@@ -40,3 +40,8 @@ flask_server/project/output.json
 flask_server/project/text.json
 flask_server/project/text2.json
 flask_server/project/text3.json
+algorithm-test/zagreb2.json
+algorithm-test/09-06-2020.log
+algorithm-test/zagreb-4d-ago.json
+algorithm-test/zagreb.json
+algorithm-test/zagreb.py
