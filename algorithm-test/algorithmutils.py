@@ -98,7 +98,7 @@ def gps_data_from_movement_set(base_lat, base_long, movement_set, geohash_chars,
                 # print(noisy_lat_position + 100 * lat_offset[ii])
                 # print(noisy_long_position + 100 * long_offset[ii])
 
-            # And add the GPS point ot the list
+            # And add the GPS point to the list
             gps_point = {'latitude': noisy_lat_position,
                          'longitude': noisy_long_position,
                          'geohash_centre': near_geohashes[4],
