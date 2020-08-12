@@ -13,18 +13,20 @@ import generatelocations
 @app.route('/upload')
 def upload_json():
    return render_template('upload.html')
-  
+
 @app.route('/uploader', methods = ['GET', 'POST'])
 def json_uploader():
    if request.method == 'POST':
       f = request.files['file']
       text = jsonutils.analyze_json_file(f)
       return text
-    
+
 @app.route('/')
 def index():
-    return "Hello World! Yes!"
-
+    text = "<h1>Test tools for PathCheck GPS Digital Contact Tracing Solution</h1><p></p>"
+    text += "For more details see <a href=\"https://pathcheck.atlassian.net/wiki/"
+    text += "spaces/TEST/pages/200638489/PathCheck+GPS+Safe+Places+Feature+Flags+Test+Tools+Video\">this page</a>."
+    return text
 
 @app.route('/location-data')
 def locations():
@@ -40,7 +42,7 @@ def locations():
         latitude = "error"
 
     points = request.args.get('points')
-    if points == None: 
+    if points == None:
         points = "10"
 
     step = request.args.get('step')
@@ -102,36 +104,36 @@ def infections():
         latitude = "error"
 
     cases = request.args.get('cases')
-    if cases == None:	
+    if cases == None:
         cases = "1"
-    
+
     hash_cost = request.args.get('hash')
-    if hash_cost == None: 
+    if hash_cost == None:
         hash_cost = "0"
- 
+
     pages = request.args.get('pages')
-    if pages == None: 
+    if pages == None:
         pages = "0"
-    
+
     days = request.args.get('days')
     if days == None:
         days = "1"
 
     radius = request.args.get('radius')
-    if radius == None:	
+    if radius == None:
         radius = "0.00001"
 
     notification_threshold_percent = request.args.get('notification_threshold_percent')
-    if notification_threshold_percent == None:  
+    if notification_threshold_percent == None:
         notification_threshold_percent = "66"
-    
+
     notification_threshold_timeframe = request.args.get('notification_threshold_timeframe')
-    if notification_threshold_timeframe == None:  
+    if notification_threshold_timeframe == None:
         notification_threshold_timeframe = "30"
 
     # Start assuming data valid.& set dedaults.
     data_valid = True
-    
+
     try:
     	latitude_float = float(latitude)
     	longitude_float = float(longitude)
@@ -217,7 +219,7 @@ def infections():
         text += "<li>Pages: 0</li></ul>"
         text += "<li>:Notification Threshold Percent: 66</li></ul>"
         text += "<li>:Notification Threshold Time: 30</li></ul>"
-        
+
         text += "<p>Radius represents the number of degrees away from the specified latitude and longitude that data points may be generated.</p>"
         text += "<p>Use radius=0 if you want every data point to be recorded at the exact latitude & longitude specified.</p>"
         text += "<p>Note: it is not a true <i>radius</i>.  In fact the area in which data points are placed is square.</p>"
@@ -296,12 +298,12 @@ def hds():
         text += "<p>If you want to test a very large number of HDs, e.g. 100 or more, that's fine...</p>"
         text += "<p>... but if you subscribe to the HA, the App will try to download 288M data points...</p>"
         text += "<p>... so maybe don't actually subscribe to those, unless you specifically want to test extreme load.</p>"
-        
+
     return text
 
 
 def write_hd(org_id,
-             pages, 
+             pages,
              cases,
              days,
              latitude,
@@ -313,7 +315,7 @@ def write_hd(org_id,
     cursor_url = "diarmidmackenzie.pythonanywhere.com/infection-data?"
     cursor_url += "latitude=" + str(latitude)
     cursor_url += "&longitude=" + str(longitude)
-    cursor_url += "&hash=12" 
+    cursor_url += "&hash=12"
     cursor_url += "&pages=" + str(pages)
     cursor_url += "&cases=" + str(cases)
     cursor_url += "&days=" + str(days)
@@ -369,9 +371,9 @@ def write_data(cases,
               for time_delta in range(288): # 12 logs / hour, 24 hours/day
                   lat_delta = (random.random() - 0.5) * (radius * 2)
                   long_delta = (random.random() - 0.5) * (radius * 2)
-     
+
                   hash_timer = time.time()
-     
+
                   # We only generate hashes for at most 20 seconds' CPU time.
                   # We work backwards, so the most recent data points will be hashed.
                   if (hash_cost > 0) and (hash_timer < time_now + 20):
@@ -427,7 +429,7 @@ def write_data(cases,
                        'notification_threshold_percent': notification_threshold_percent,
                        'notification_threshold_timeframe': notification_threshold_timeframe,
                        'authority_name':authority}
-                        
+
      if hash_cost > 0:
          json_dictionary['concern_point_hashes'] = hash_data_rows
      else:
@@ -463,14 +465,14 @@ def write_cursor_file(cases,
     url_string += "&notification_threshold_percent=" + str(notification_threshold_percent)
     url_string += "&notification_threshold_timeframe=" + str(notification_threshold_timeframe)
 
-    for ii in range(pages):      
+    for ii in range(pages):
       start_time = base_time + (ii * 1000)
       end_time = start_time + 999
       pages_data.append({'id': str(start_time) + "_" + str(end_time),
                          'startTimestamp': start_time,
                          'endTimestamp': end_time,
                          'filename': url_string})
-                        
+
     json_dictionary = {'version': '1.0',
                        'authority_name':authority,
                        'publish_date_utc': int(time_now),
@@ -481,8 +483,7 @@ def write_cursor_file(cases,
                        'notification_threshold_percent': notification_threshold_percent,
                        'notification_threshold_timeframe': notification_threshold_timeframe,
                        'pages': pages_data}
-                       
+
     text = json.dumps(json_dictionary, indent=0)
 
     return text
-
