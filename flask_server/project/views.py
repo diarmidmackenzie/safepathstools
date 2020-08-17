@@ -24,8 +24,8 @@ def json_uploader():
 @app.route('/')
 def index():
     text = "<h1>Test tools for PathCheck GPS Digital Contact Tracing Solution</h1><p></p>"
-    text += "For more details see <a href=\"https://pathcheck.atlassian.net/wiki/"
-    text += "spaces/TEST/pages/200638489/PathCheck+GPS+Safe+Places+Feature+Flags+Test+Tools+Video\">this page</a>."
+    text += "For more details see <a href=\"https://github.com/diarmidmackenzie/safepathstools/blob/master/Documentation.md\">"
+    text += "this page</a>."
     return text
 
 @app.route('/location-data')
