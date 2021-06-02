@@ -6,7 +6,7 @@ idna==2.9
 itsdangerous==1.1.0
 Jinja2==2.11.1
 MarkupSafe==1.1.1
-urllib3==1.25.8
+urllib3==1.26.5
 Werkzeug==1.0.1
 python-geohash==0.8.5
 scrypt==0.8.15
